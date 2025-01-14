@@ -70,12 +70,9 @@ class Comp_Latch:
     NONLATCHING = 0x0000
     LATCHING = 0x0004
 
-class ADS1x15:
-    """Base functionality for ADS1x15 analog to digital converters."""
-
     def __init__(
         self,
-        i2c_bus_number: int,
+        i2c_device: SMBus,
         gain: float = 1,
         data_rate: Optional[int] = None,
         mode: int = Mode.SINGLE,
@@ -91,7 +88,7 @@ class ADS1x15:
         self._last_pin_read = None
         self.buf = bytearray(3)
         self.initialized = False
-        self.i2c_device = SMBus(i2c_bus_number)
+        self.i2c_device = i2c_device  # Expect an SMBus instance here
         self.address = address
         self.gain = gain
         self.data_rate = self._data_rate_default() if data_rate is None else data_rate
