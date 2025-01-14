@@ -34,16 +34,15 @@ GPIO_CHIP = "/dev/gpiochip0"
 def configure_gpio_line(pin: int, direction: str):
     """Helper function to configure a GPIO line."""
     chip = gpiod.Chip(GPIO_CHIP)
-    line = chip.get_line(pin)
+    line = chip.request_line(pin)
 
     if direction == "in":
-        config = gpiod.LineRequest(chip, consumer="ads1x15", type=gpiod.LINE_REQ_DIR_IN)
+        line.request(consumer="ads1x15", type=gpiod.LINE_REQ_DIR_IN)
     elif direction == "out":
-        config = gpiod.LineRequest(chip, consumer="ads1x15", type=gpiod.LINE_REQ_DIR_OUT)
+        line.request(consumer="ads1x15", type=gpiod.LINE_REQ_DIR_OUT)
     else:
         raise ValueError("Invalid GPIO direction")
 
-    line.request(config)
     return line
 
 class Mode:
