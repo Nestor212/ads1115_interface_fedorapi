@@ -1,8 +1,7 @@
 import time
 import gpiod
 from typing import Dict, List, Optional
-
-#from smbus2 import SMBus
+from smbus2 import SMBus
 
 def const(value):
     return value
