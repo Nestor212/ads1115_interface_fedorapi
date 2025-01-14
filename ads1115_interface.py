@@ -3,10 +3,11 @@ import csv
 import gpiod
 from ads1115 import ADS1x15 # Use the custom driver instead
 import board
-import busio
+from smbus2 import SMBus
 
-# Initialize I2C bus
-i2c = busio.I2C(board.SCL, board.SDA)
+# Use SMBus to access the I2C bus
+i2c_bus_number = 1  # Usually 1 on Raspberry Pi
+i2c = SMBus(i2c_bus_number)
 
 # Initialize two ADS1115 modules using the custom driver
 ads1 = ADS1x15(i2c, address=0x48)  # Default address
