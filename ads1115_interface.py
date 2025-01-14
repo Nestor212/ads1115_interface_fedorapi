@@ -11,7 +11,7 @@ i2c = SMBus(i2c_bus_number)
 
 # Initialize two ADS1115 modules using the custom driver
 ads1 = ads.ADS1115(i2c_device=i2c, address=0x48)
-ads2 = ads.ADS1115(i2c_device=i2c, address=0x49)
+#ads2 = ads.ADS1115(i2c_device=i2c, address=0x49)
 
 # Define GPIO chip and lines for additional controls
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
@@ -51,10 +51,10 @@ with open(filename, "w", newline="") as csvfile:
                 "ADS1_CH1": ads1._read(1),  # Read channel 1
                 "ADS1_CH2": ads1._read(2),  # Read channel 2
                 "ADS1_CH3": ads1._read(3),  # Read channel 3
-                "ADS2_CH0": ads2._read(0),  # Read channel 0
-                "ADS2_CH1": ads2._read(1),  # Read channel 1
-                "ADS2_CH2": ads2._read(2),  # Read channel 2
-                "ADS2_CH3": ads2._read(3),  # Read channel 3
+                # "ADS2_CH0": ads2._read(0),  # Read channel 0
+                # "ADS2_CH1": ads2._read(1),  # Read channel 1
+                # "ADS2_CH2": ads2._read(2),  # Read channel 2
+                # "ADS2_CH3": ads2._read(3),  # Read channel 3
             }
 
             # Write to CSV
