@@ -70,42 +70,46 @@ class Comp_Latch:
     NONLATCHING = 0x0000
     LATCHING = 0x0004
 
-    def __init__(
-        self,
-        i2c_device: SMBus,
-        gain: float = 1,
-        data_rate: Optional[int] = None,
-        mode: int = Mode.SINGLE,
-        comparator_queue_length: int = 0,
-        comparator_low_threshold: int = -32768,
-        comparator_high_threshold: int = 32767,
-        comparator_mode: int = Comp_Mode.TRADITIONAL,
-        comparator_polarity: int = Comp_Polarity.ACTIVE_LOW,
-        comparator_latch: int = Comp_Latch.NONLATCHING,
-        address: int = _ADS1X15_DEFAULT_ADDRESS,
-        alert_pin: Optional[int] = None,
-    ):
-        self._last_pin_read = None
-        self.buf = bytearray(3)
-        self.initialized = False
-        self.i2c_device = i2c_device  # Expect an SMBus instance here
-        self.address = address
-        self.gain = gain
-        self.data_rate = self._data_rate_default() if data_rate is None else data_rate
-        self.mode = mode
-        self.comparator_queue_length = comparator_queue_length
-        self.comparator_low_threshold = comparator_low_threshold
-        self.comparator_high_threshold = comparator_high_threshold
-        self.comparator_mode = comparator_mode
-        self.comparator_polarity = comparator_polarity
-        self.comparator_latch = comparator_latch
-        self.alert_pin = alert_pin
-        if alert_pin is not None:
-            self.alert_line = configure_gpio_line(alert_pin, "in")
-        else:
-            self.alert_line = None
-        self.initialized = True
-        self._write_config()
+class ADS1x15:
+    """Base functionality for ADS1x15 analog to digital converters."""
+
+def __init__(
+    self,
+    i2c_device: SMBus,
+    gain: float = 1,
+    data_rate: Optional[int] = None,
+    mode: int = Mode.SINGLE,
+    comparator_queue_length: int = 0,
+    comparator_low_threshold: int = -32768,
+    comparator_high_threshold: int = 32767,
+    comparator_mode: int = Comp_Mode.TRADITIONAL,
+    comparator_polarity: int = Comp_Polarity.ACTIVE_LOW,
+    comparator_latch: int = Comp_Latch.NONLATCHING,
+    address: int = _ADS1X15_DEFAULT_ADDRESS,
+    alert_pin: Optional[int] = None,
+):
+    self._last_pin_read = None
+    self.buf = bytearray(3)
+    self.initialized = False
+    self.i2c_device = i2c_device  # Expect an SMBus instance here
+    self.address = address
+    self.gain = gain
+    self.data_rate = self._data_rate_default() if data_rate is None else data_rate
+    self.mode = mode
+    self.comparator_queue_length = comparator_queue_length
+    self.comparator_low_threshold = comparator_low_threshold
+    self.comparator_high_threshold = comparator_high_threshold
+    self.comparator_mode = comparator_mode
+    self.comparator_polarity = comparator_polarity
+    self.comparator_latch = comparator_latch
+    self.alert_pin = alert_pin
+    if alert_pin is not None:
+        self.alert_line = configure_gpio_line(alert_pin, "in")
+    else:
+        self.alert_line = None
+    self.initialized = True
+    self._write_config()
+
 
     def wait_for_alert(self, timeout: Optional[float] = None):
         """Wait for an ALERT signal if alert_pin is configured."""
