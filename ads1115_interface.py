@@ -2,7 +2,7 @@ import time
 import csv
 import gpiod
 from ads1115 import ADS1x15 # Use the custom driver instead
-import board
+# import board
 from smbus2 import SMBus
 
 # Use SMBus to access the I2C bus
