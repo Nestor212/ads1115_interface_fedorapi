@@ -1,30 +1,9 @@
-# SPDX-FileCopyrightText: 2018 Carter Nelson for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
-
-"""
-`ads1x15`
-====================================================
-
-CircuitPython base class driver for ADS1015/1115 ADCs.
-
-* Author(s): Carter Nelson
-"""
-
-__version__ = "0.0.0+auto.0"
-__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_ADS1x15.git"
-
 import time
 import gpiod
-# from adafruit_bus_device.i2c_device import I2CDevice
-from micropython import const
+from smbus2 import SMBus
 
-try:
-    from typing import Dict, List, Optional
-
-    from busio import I2C
-except ImportError:
-    I2C = None
+def const(value):
+    return value
 
 _ADS1X15_DEFAULT_ADDRESS = const(0x48)
 _ADS1X15_POINTER_CONVERSION = const(0x00)
@@ -95,7 +74,7 @@ class ADS1x15:
 
     def __init__(
         self,
-        i2c: I2C,
+        i2c_bus_number: int,
         gain: float = 1,
         data_rate: Optional[int] = None,
         mode: int = Mode.SINGLE,
@@ -111,7 +90,8 @@ class ADS1x15:
         self._last_pin_read = None
         self.buf = bytearray(3)
         self.initialized = False
-        self.i2c_device = SMBus(i2c, address)
+        self.i2c_device = SMBus(i2c_bus_number)
+        self.address = address
         self.gain = gain
         self.data_rate = self._data_rate_default() if data_rate is None else data_rate
         self.mode = mode
@@ -167,19 +147,12 @@ class ADS1x15:
         return self._read_register(_ADS1X15_POINTER_CONVERSION, fast)
 
     def _write_register(self, reg: int, value: int):
-        self.buf[0] = reg
-        self.buf[1] = (value >> 8) & 0xFF
-        self.buf[2] = value & 0xFF
-        with self.i2c_device as i2c:
-            i2c.write(self.buf)
+        data = [(value >> 8) & 0xFF, value & 0xFF]
+        self.i2c_device.write_i2c_block_data(self.address, reg, data)
 
     def _read_register(self, reg: int, fast: bool = False) -> int:
-        with self.i2c_device as i2c:
-            if fast:
-                i2c.readinto(self.buf, end=2)
-            else:
-                i2c.write_then_readinto(bytearray([reg]), self.buf, in_end=2)
-        return self.buf[0] << 8 | self.buf[1]
+        data = self.i2c_device.read_i2c_block_data(self.address, reg, 2)
+        return (data[0] << 8) | data[1]
 
     def _write_config(self, pin_config: Optional[int] = None) -> None:
         if pin_config is None:

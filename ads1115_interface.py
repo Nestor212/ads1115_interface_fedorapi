@@ -17,7 +17,7 @@ ads2 = ADS1x15(i2c, address=0x49)  # Secondary address
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
 gpio_chip = gpiod.Chip(GPIO_CHIP)
 
-ENABLE_PIN = 17  # GPIO pin number
+ENABLE_PIN = 26  # GPIO pin number
 enable_line = gpio_chip.get_line(ENABLE_PIN)
 config = gpiod.LineRequest()
 config.consumer = "sensor_logger"
