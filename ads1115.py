@@ -16,7 +16,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_ADS1x15.git"
 
 import time
 import gpiod
-from adafruit_bus_device.i2c_device import I2CDevice
+# from adafruit_bus_device.i2c_device import I2CDevice
 from micropython import const
 
 try:
@@ -111,7 +111,7 @@ class ADS1x15:
         self._last_pin_read = None
         self.buf = bytearray(3)
         self.initialized = False
-        self.i2c_device = I2CDevice(i2c, address)
+        self.i2c_device = SMBus(i2c, address)
         self.gain = gain
         self.data_rate = self._data_rate_default() if data_rate is None else data_rate
         self.mode = mode
