@@ -13,9 +13,9 @@ CircuitPython driver for 1115 ADCs.
 import struct
 
 try:
-    from typing import Dict, List
+    from typing import Dict, List, Literal
 
-    from typing_extensions import Literal
+    #from typing_extensions import Literal
 except ImportError:
     pass
 
