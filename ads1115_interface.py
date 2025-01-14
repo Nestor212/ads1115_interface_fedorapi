@@ -1,19 +1,18 @@
 import time
 import csv
 import gpiod
-from adafruit_ads1x15.ads1115 import ADS1115
-from adafruit_ads1x15.analog_in import AnalogIn
+import ADS1115  # Use the custom driver instead
 import board
 import busio
 
 # Initialize I2C bus
 i2c = busio.I2C(board.SCL, board.SDA)
 
-# Initialize two ADS1115 modules on different I2C addresses
+# Initialize two ADS1115 modules using the custom driver
 ads1 = ADS1115(i2c, address=0x48)  # Default address
 ads2 = ADS1115(i2c, address=0x49)  # Secondary address
 
-# Define GPIO chip and lines for additional controls 
+# Define GPIO chip and lines for additional controls
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
 gpio_chip = gpiod.Chip(GPIO_CHIP)
 
@@ -47,14 +46,14 @@ with open(filename, "w", newline="") as csvfile:
             # Read all 4 channels from both ADS1115 modules
             readings = {
                 "Timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "ADS1_CH0": AnalogIn(ads1, ADS1115.P0).voltage,
-                "ADS1_CH1": AnalogIn(ads1, ADS1115.P1).voltage,
-                "ADS1_CH2": AnalogIn(ads1, ADS1115.P2).voltage,
-                "ADS1_CH3": AnalogIn(ads1, ADS1115.P3).voltage,
-                "ADS2_CH0": AnalogIn(ads2, ADS1115.P0).voltage,
-                "ADS2_CH1": AnalogIn(ads2, ADS1115.P1).voltage,
-                "ADS2_CH2": AnalogIn(ads2, ADS1115.P2).voltage,
-                "ADS2_CH3": AnalogIn(ads2, ADS1115.P3).voltage,
+                "ADS1_CH0": ads1._read(0),  # Read channel 0
+                "ADS1_CH1": ads1._read(1),  # Read channel 1
+                "ADS1_CH2": ads1._read(2),  # Read channel 2
+                "ADS1_CH3": ads1._read(3),  # Read channel 3
+                "ADS2_CH0": ads2._read(0),  # Read channel 0
+                "ADS2_CH1": ads2._read(1),  # Read channel 1
+                "ADS2_CH2": ads2._read(2),  # Read channel 2
+                "ADS2_CH3": ads2._read(3),  # Read channel 3
             }
 
             # Write to CSV
