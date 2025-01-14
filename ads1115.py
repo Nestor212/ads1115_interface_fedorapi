@@ -1,6 +1,6 @@
 import time
 import gpiod
-from smbus2 import SMBus
+#from smbus2 import SMBus
 
 def const(value):
     return value
