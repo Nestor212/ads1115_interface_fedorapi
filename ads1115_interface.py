@@ -18,7 +18,7 @@ GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
 gpio_chip = gpiod.Chip(GPIO_CHIP)
 
 ENABLE_PIN = 26  # GPIO pin number
-enable_line = gpio_chip.get_line(ENABLE_PIN)
+enable_line = gpio_chip.get_info(ENABLE_PIN)
 config = gpiod.LineRequest()
 config.consumer = "sensor_logger"
 config.request_type = gpiod.LINE_REQ_DIR_OUT
