@@ -10,8 +10,8 @@ i2c_bus_number = 1  # Usually 1 on Raspberry Pi
 i2c = SMBus(i2c_bus_number)
 
 # Initialize two ADS1115 modules using the custom driver
-ads1 = ads(i2c_device=i2c, address=0x48)
-ads2 = ads(i2c_device=i2c, address=0x49)
+ads1 = ads.ADS1115(i2c_device=i2c, address=0x48)
+ads2 = ads.ADS1115(i2c_device=i2c, address=0x49)
 
 # Define GPIO chip and lines for additional controls
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
