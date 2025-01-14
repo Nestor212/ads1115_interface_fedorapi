@@ -37,9 +37,9 @@ def configure_gpio_line(pin: int, direction: str):
     line = chip.get_line(pin)
 
     if direction == "in":
-        config = gpiod.LineRequest(consumer="ads1x15", type=gpiod.LINE_REQ_DIR_IN)
+        config = gpiod.LineRequest(chip, consumer="ads1x15", type=gpiod.LINE_REQ_DIR_IN)
     elif direction == "out":
-        config = gpiod.LineRequest(consumer="ads1x15", type=gpiod.LINE_REQ_DIR_OUT)
+        config = gpiod.LineRequest(chip, consumer="ads1x15", type=gpiod.LINE_REQ_DIR_OUT)
     else:
         raise ValueError("Invalid GPIO direction")
 

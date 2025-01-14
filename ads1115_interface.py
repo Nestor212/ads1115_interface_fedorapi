@@ -10,22 +10,12 @@ i2c_bus_number = 1  # Usually 1 on Raspberry Pi
 i2c = SMBus(i2c_bus_number)
 
 # Initialize two ADS1115 modules using the custom driver
-ads1 = ads.ADS1115(i2c_device=i2c, address=0x48)
+ads1 = ads.ADS1115(i2c_device=i2c, address=0x48, alert_pin=27)
 #ads2 = ads.ADS1115(i2c_device=i2c, address=0x49)
 
 # Define GPIO chip and lines for additional controls
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
 gpio_chip = gpiod.Chip(GPIO_CHIP)
-
-ENABLE_PIN = 26  # GPIO pin number
-enable_line = gpio_chip.get_line(ENABLE_PIN)
-enable_line.request(consumer="sensor_logger", type=gpiod.LINE_REQ_DIR_OUT)
-
-def enable_sensors(enable):
-    enable_line.set_value(1 if enable else 0)
-
-# Enable sensors
-enable_sensors(True)
 
 # Open a CSV file for logging
 time_stamp = time.strftime("%Y%m%d_%H%M%S")
