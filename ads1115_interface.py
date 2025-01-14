@@ -1,9 +1,10 @@
 import time
 import csv
 import gpiod
+from smbus2 import SMBus
+
 from ads1115 import ADS1x15 # Use the custom driver instead
 # import board
-from smbus2 import SMBus
 
 # Use SMBus to access the I2C bus
 i2c_bus_number = 1  # Usually 1 on Raspberry Pi
