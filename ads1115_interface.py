@@ -13,22 +13,19 @@ i2c = SMBus(i2c_bus_number)
 ads1 = ads.ADS1115(i2c_device=i2c, address=0x48)
 #ads2 = ads.ADS1115(i2c_device=i2c, address=0x49)
 
-# # Define GPIO chip and lines for additional controls
-# GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
-# gpio_chip = gpiod.Chip(GPIO_CHIP)
+# Define GPIO chip and lines for additional controls
+GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
+gpio_chip = gpiod.Chip(GPIO_CHIP)
 
-# ENABLE_PIN = 26  # GPIO pin number
-# enable_line = gpio_chip.get_line(ENABLE_PIN)
-# config.consumer = "sensor_logger"
-# config.request_type = gpiod.LINE_REQ_DIR_OUT
+ENABLE_PIN = 26  # GPIO pin number
+enable_line = gpio_chip.get_line(ENABLE_PIN)
+enable_line.request(consumer="sensor_logger", type=gpiod.LINE_REQ_DIR_OUT)
 
-# enable_line.request(config)
+def enable_sensors(enable):
+    enable_line.set_value(1 if enable else 0)
 
-# def enable_sensors(enable):
-#     enable_line.set_value(1 if enable else 0)
-
-# # Enable sensors
-# enable_sensors(True)
+# Enable sensors
+enable_sensors(True)
 
 # Open a CSV file for logging
 time_stamp = time.strftime("%Y%m%d_%H%M%S")
