@@ -1,7 +1,7 @@
 import time
 import csv
 import gpiod
-import ADS1115  # Use the custom driver instead
+from ads1115 import ADS1x15 # Use the custom driver instead
 import board
 import busio
 
@@ -9,8 +9,8 @@ import busio
 i2c = busio.I2C(board.SCL, board.SDA)
 
 # Initialize two ADS1115 modules using the custom driver
-ads1 = ADS1115(i2c, address=0x48)  # Default address
-ads2 = ADS1115(i2c, address=0x49)  # Secondary address
+ads1 = ADS1x15(i2c, address=0x48)  # Default address
+ads2 = ADS1x15(i2c, address=0x49)  # Secondary address
 
 # Define GPIO chip and lines for additional controls
 GPIO_CHIP = "/dev/gpiochip0"  # Adjust if needed
