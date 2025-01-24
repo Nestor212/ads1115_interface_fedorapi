@@ -8,7 +8,7 @@ def const(value):
 
 _ADS1X15_DEFAULT_ADDRESS = const(0x48)
 _ADS1X15_POINTER_CONVERSION = const(0x00)
-_ADS1X15_POINTER_CONFIG = const(0x01)
+_ADS1X15_POINTER_CONFIG = const(1)
 _ADS1X15_POINTER_LO_THRES = const(0x02)
 _ADS1X15_POINTER_HI_THRES = const(0x03)
 
@@ -160,10 +160,18 @@ class ADS1x15:
             pin_config = (
                 self._read_register(_ADS1X15_POINTER_CONFIG) & 0x7000
             ) >> _ADS1X15_CONFIG_MUX_OFFSET
+        elif pin_config == 0:
+        		pin_config = 0x4000
+        elif pin_config == 1:
+        		pin_config = 0x5000
+        elif pin_config == 2:
+        		pin_config = 0x6000
+        elif pin_config == 3:
+        		pin_config = 0x7000
 
         config = _ADS1X15_CONFIG_OS_SINGLE if self.mode == Mode.SINGLE else 0
 
-        config |= (pin_config & 0x07) << _ADS1X15_CONFIG_MUX_OFFSET
+        config |= pin_config
         config |= _ADS1X15_CONFIG_GAIN[self.gain]
         config |= self.mode
         config |= self.rate_config[self.data_rate]
