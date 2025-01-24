@@ -1,10 +1,8 @@
 import time
 import csv
-import gpiod
-from smbus2 import SMBus
 import socket
-
 import ads1115 as ads  # Use the custom driver instead
+from smbus2 import SMBus
 
 # Voltage Divider Circuit Details
 r1 = 56000  # Resistor R1 in ohms
@@ -13,6 +11,9 @@ vIn = 5
 # UNIX domain socket path
 HOST = "localhost"
 PORT = 65432
+
+coeff_a = [1.0986, 1.0991, 1.0964, 1.0989, 1.1000, 1.0972, 1.0988, 1.1004]
+coeff_b = [-0.0005, -0.0005, -0.0009, -0.0006, -0.0005, -0.0009, -0.0007, -0.0005]
 
 # Lookup table for converting resistance to temperature for a 100k NTC thermistor
 # The table contains tuples of (resistance in ohms, temperature in Celsius)
@@ -47,6 +48,7 @@ thermistor_table = [
 ]
 
 # Function to send a voltage query to the C program
+# INW, hasn't been tested yet
 def query_temperature(voltage):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -61,11 +63,10 @@ def query_temperature(voltage):
     except Exception as e:
         print(f"Socket error: {e}")
         return None
-    
+
 def lookup_temperature(rTherm):
     """
-    Converts resistance to temperature using a lookup table with linear interpolation.
-
+    Converts resistance to temperature using the above lookup table with linear interpolation.
     :param rTherm: Thermistor resistance in ohms
     :return: Temperature in Fahrenheit
     """
@@ -73,7 +74,6 @@ def lookup_temperature(rTherm):
         r1, t1 = thermistor_table[i]
         r2, t2 = thermistor_table[i + 1]
         if r2 <= rTherm <= r1:
-            # Linear interpolation
             return t1 + (t2 - t1) * ((rTherm - r1) / (r2 - r1))
     return None  # Out of range
 
@@ -88,34 +88,29 @@ def initialize_ads_modules():
 i2c_bus_number = 1
 initialize_ads_modules()
 
-# Define GPIO chip and lines for additional control
-GPIO_CHIP = "/dev/gpiochip0"
-gpio_chip = gpiod.Chip(GPIO_CHIP)
-
 def convert_to_temperature(raw_reading):
     # Convert ADC reading to voltage
-    # Gain set to 1, FS = +/-4.096V, 32768 steps
     voltage = raw_reading * (4.096 / 32768)
-    query_temperature(voltage)
-
-    # Voltage to temperature conversion
-    # Voltage divider circuit used to measure temperature Rdiv = r1 = 56000
-    rTherm = r1 * (1 / ((vIn / voltage) - 1))  # Calculate resistance of thermistor
-    # print(rTherm)
     
+    # Calibrate the voltage using the provided coefficients
+    calibrated_voltage = (voltage - coeff_b[0]) / coeff_a[0]
+    
+    # query_temperature(calibrated_voltage)
+
+    # Voltage to resistance conversion
+    rTherm = r1 * (1 / ((vIn / calibrated_voltage) - 1))
     # Lookup temperature from the table
     temperature = lookup_temperature(rTherm)
     return round(temperature, 2) if temperature is not None else None
 
-# Open a CSV file for logging
-time_stamp = time.strftime("%Y%m%d_%H%M")  # Down to the minute
+# CSV file for logging
+time_stamp = time.strftime("%Y%m%d_%H%M")
 filename = f"Logs/Smoker_log_{time_stamp}.csv"
 
 with open(filename, "w", newline="") as csvfile:
     fieldnames = ["Timestamp", "TEMP00", "TEMP01", "TEMP02", "TEMP03",
                   "TEMP10", "TEMP11", "TEMP12", "TEMP13"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
     writer.writeheader()
 
     try:
@@ -136,8 +131,6 @@ with open(filename, "w", newline="") as csvfile:
 
                 # Write to CSV
                 writer.writerow(readings)
-
-                # Ensure the data is written to the file immediately
                 csvfile.flush()
 
                 # Print to console for monitoring
@@ -147,7 +140,7 @@ with open(filename, "w", newline="") as csvfile:
                 time.sleep(1)
 
             except OSError as e:
-                print(f"I/O error occurred: {e}. Reinitializing I2C and ADS modules...")
+                print(f"OS error occurred: {e}. Reinitializing I2C and ADS modules...")
                 initialize_ads_modules()
 
     except KeyboardInterrupt:
