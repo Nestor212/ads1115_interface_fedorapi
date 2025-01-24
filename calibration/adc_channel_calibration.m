@@ -52,6 +52,7 @@ for sensor_idx = 1:num_sensors
     xlabel('Thermistor Resistance (Ohms)');
     ylabel('Output Voltage (V)');
     hold off;
+    saveas(gcf, sprintf('plots/channel%d_voltage_calibration.png', sensor_idx)); % Save as a PNG file
 end
 
 
