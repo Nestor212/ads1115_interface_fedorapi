@@ -99,6 +99,7 @@ def convert_to_temperature(raw_reading):
 
     # Voltage to resistance conversion
     rTherm = r1 * (1 / ((vIn / calibrated_voltage) - 1))
+    
     # Lookup temperature from the table
     temperature = lookup_temperature(rTherm)
     return round(temperature, 2) if temperature is not None else None
@@ -137,7 +138,7 @@ with open(filename, "w", newline="") as csvfile:
                 print(readings)
 
                 # Wait 1 second before next reading
-                time.sleep(1)
+                time.sleep(3)
 
             except OSError as e:
                 print(f"OS error occurred: {e}. Reinitializing I2C and ADS modules...")
