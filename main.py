@@ -12,9 +12,6 @@ vIn = 5.5
 HOST = "localhost"
 PORT = 65432
 
-#coeff_a = [1.0986, 1.0991, 1.0964, 1.0989, 1.1000, 1.0972, 1.0988, 1.1004]
-#coeff_b = [-0.0005, -0.0005, -0.0009, -0.0006, -0.0005, -0.0009, -0.0007, -0.0005]
-
 coeff_a = [0.9880, 0.9855, 0.9804, 0.9827, 0.9880, 0.9804, 0.9829, 0.9829]
 coeff_b = [-0.0010, -0.0009, -0.0007, -0.0002, -0.0010, -0.0007, -0.0008, -0.0008]
 
@@ -47,8 +44,6 @@ thermistor_table = [
     (3450, 255.0), (3200, 259.4), (2100, 283.0), (1600, 301.0), (1520, 304.0),
     (1400, 310.0)
 ]
-
-
 
 # Function to send a voltage query to the C program
 # INW, hasn't been tested yet
@@ -91,13 +86,15 @@ def initialize_ads_modules():
 i2c_bus_number = 1
 initialize_ads_modules()
 
-def convert_to_temperature(raw_reading):
+def convert_to_temperature(raw_reading, sensor, channel):
     # Convert ADC reading to voltage
+    index = sensor * 4 + channel
+    
     voltage = raw_reading * (4.096 / 32768)
     
     # print(f"Raw ADC: {raw_reading}, Voltage: {voltage:.3f} V")
     # Calibrate the voltage using the provided coefficients
-    calibrated_voltage = (voltage - coeff_b[0]) / coeff_a[0]
+    calibrated_voltage = (voltage - coeff_b[index]) / coeff_a[index]
     
     # query_temperature(calibrated_voltage)
 
@@ -129,7 +126,7 @@ with open(filename, "w", newline="") as csvfile:
                 # Loop through both ADS instances and their channels
                 for sensor, ads in enumerate([ads1, ads2]):
                     for channel in range(4):
-                        temperature, voltage = convert_to_temperature(ads._read(channel))
+                        temperature, voltage = convert_to_temperature(ads._read(channel), sensor, channel)
                         readings[f"TEMP{sensor}{channel}"] = temperature
                         readings[f"VOLT{sensor}{channel}"] = voltage
 
