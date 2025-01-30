@@ -6,46 +6,49 @@ from smbus2 import SMBus
 
 # Voltage Divider Circuit Details
 r1 = 56000  # Resistor R1 in ohms
-vIn = 5
+vIn = 5.5
 
 # UNIX domain socket path
 HOST = "localhost"
 PORT = 65432
 
-coeff_a = [1.0986, 1.0991, 1.0964, 1.0989, 1.1000, 1.0972, 1.0988, 1.1004]
-coeff_b = [-0.0005, -0.0005, -0.0009, -0.0006, -0.0005, -0.0009, -0.0007, -0.0005]
+#coeff_a = [1.0986, 1.0991, 1.0964, 1.0989, 1.1000, 1.0972, 1.0988, 1.1004]
+#coeff_b = [-0.0005, -0.0005, -0.0009, -0.0006, -0.0005, -0.0009, -0.0007, -0.0005]
+
+coeff_a = [0.9880, 0.9855, 0.9804, 0.9827, 0.9880, 0.9804, 0.9829, 0.9829]
+coeff_b = [-0.0010, -0.0009, -0.0007, -0.0002, -0.0010, -0.0007, -0.0008, -0.0008]
 
 # Lookup table for converting resistance to temperature for a 100k NTC thermistor
 # The table contains tuples of (resistance in ohms, temperature in Celsius)
 thermistor_table = [
-    (170853, 57), (161700, 59), (153092, 61), (144992, 63), (137367, 65), 
-    (130189, 67), (123368, 69), (117000, 71), (110998, 73), (105338, 75),
-    (100000, 77), (94963, 79), (90208, 81), (85719, 83), (81479, 85),
-    (77438, 87), (73654, 89), (70076, 91), (66692, 93), (63491, 95),
-    (60461, 97), (57594, 99), (54878, 101), (52306, 103), (49847, 105),
-    (47538, 107), (45349, 109), (43273, 111), (41303, 113), (39434, 115),
-    (37660, 117), (35976, 119), (34376, 121), (32843, 123), (31399, 125),
-    (30027, 127), (28722, 129), (27481, 131), (26300, 133), (25177, 135),
-    (24107, 137), (23089, 139), (22111, 141), (21188, 143), (20308, 145),
-    (19469, 147), (18670, 149), (17907, 151), (17180, 153), (16486, 155),
-    (15824, 157), (15187, 159), (14584, 161), (14008, 163), (13458, 165),
-    (12932, 167), (12430, 169), (11949, 171), (11490, 173), (11051, 175),
-    (10627, 177), (10225, 179), (9841, 181), (9473, 183), (9121, 185), (8783, 187), 
+    ##
+    (322000, 32.0), (315000, 33.0), (308000, 34.0), (299000, 35.0), (293500, 36.0),
+    (283500, 37.0), (274000, 38.0), (261700, 40.0), (254000, 41.0), (242000, 43.0),
+    (228000, 45.0), (214800, 47.0), (210000, 48.0), (197300, 50.0), (186500, 52.0),
+    ## Temperatures < 55.64°C exceed adc voltage range (4.096V)
     
-    # Temperature values above 187 degrees F are approximated
-    (8461, 189), (8151, 191), (7853, 193), (7567, 195),
-    (7292, 197), (7026, 199), (6770, 201), (6523, 203), (6285, 205),
-    (6055, 207), (5833, 209), (5618, 211), (5410, 213), (5209, 215),
-    (5015, 217), (4827, 219), (4645, 221), (4469, 223), (4299, 225),
-    (4134, 227), (3975, 229), (3820, 231), (3669, 233), (3524, 235),
-    (3383, 237), (3246, 239), (3113, 241), (2984, 243), (2859, 245),
-    (2737, 247), (2619, 249), (2504, 251), (2392, 253), (2283, 255),
-    (2177, 257), (2074, 259), (1974, 261), (1876, 263), (1781, 265),
-    (1688, 267), (1598, 269), (1510, 271), (1424, 273), (1340, 275),
-    (1259, 277), (1179, 279), (1102, 281), (1026, 283), (952, 285),
-    (880, 287), (810, 289), (742, 291), (676, 293), (612, 295),
-    (550, 297), (489, 299), (430, 301)
+    (178600, 54.0), (152900, 60.0), (139700, 63.0), (108300, 73.0), (99400, 77.0),
+    (89900, 81.0), (81800, 85.0), (63300, 95.0), (62000, 96.0), (60700, 97.0),
+    (60000, 98.0), (58100, 99.0), (56600, 100.0), (55100, 101.0), (54400, 102.0),
+    (52800, 103.0), (51800, 104.0), (50400, 105.0), (49500, 106.0), (48500, 107.0),
+    (47100, 108.0), (46000, 109.0), (45000, 110.0), (44000, 111.0), (42900, 112.0),
+    (42300, 113.0), (41200, 114.0), (40200, 115.0), (39400, 116.0), (38600, 117.0),
+    (37600, 118.0), (36900, 119.0), (36000, 120.0), (35300, 121.0), (34900, 122.0),
+    (33700, 123.0), (33400, 124.0), (32600, 125.0), (32800, 126.0), (31900, 127.0),
+    (31200, 128.0), (30700, 129.0), (29900, 130.0), (29200, 131.0), (28700, 132.0),
+    (28200, 133.0), (27600, 134.0), (26900, 135.0), (26200, 136.0), (25500, 137.0),
+    (25300, 138.0), (23750, 140.0), (22670, 141.0), (22300, 142.0), (22000, 147.0),
+    (21500, 148.0), (21000, 150.0), (20510, 150.2), (20000, 152.0), (17500, 158.5),
+    (11250, 180.0), (11000, 182.0), (10860, 183.0), (10500, 187.0), (10450, 185.0),
+    (10200, 187.0), (10000, 190.0), (9890, 189.0), (9600, 190.0), (9500, 192.5),
+    (8370, 200.0), (7500, 207.0), (7000, 211.0), (6500, 217.0), (6000, 220.0),
+    (5700, 223.0), (5510, 225.0), (5300, 228.0), (5000, 231.0), (4800, 234.0),
+    (4610, 236.0), (4410, 239.0), (4200, 242.0), (4000, 245.0), (3800, 248.7),
+    (3450, 255.0), (3200, 259.4), (2100, 283.0), (1600, 301.0), (1520, 304.0),
+    (1400, 310.0)
 ]
+
+
 
 # Function to send a voltage query to the C program
 # INW, hasn't been tested yet
@@ -92,6 +95,7 @@ def convert_to_temperature(raw_reading):
     # Convert ADC reading to voltage
     voltage = raw_reading * (4.096 / 32768)
     
+    # print(f"Raw ADC: {raw_reading}, Voltage: {voltage:.3f} V")
     # Calibrate the voltage using the provided coefficients
     calibrated_voltage = (voltage - coeff_b[0]) / coeff_a[0]
     
@@ -99,46 +103,46 @@ def convert_to_temperature(raw_reading):
 
     # Voltage to resistance conversion
     rTherm = r1 * (1 / ((vIn / calibrated_voltage) - 1))
+    # print(f"Voltage: {calibrated_voltage:.3f} V, Resistance: {rTherm:.2f} ohms")
     
     # Lookup temperature from the table
     temperature = lookup_temperature(rTherm)
-    return round(temperature, 2) if temperature is not None else None
+    return [round(temperature, 2) if temperature is not None else None, round(calibrated_voltage, 3)]
 
 # CSV file for logging
 time_stamp = time.strftime("%Y%m%d_%H%M")
 filename = f"Logs/Smoker_log_{time_stamp}.csv"
 
 with open(filename, "w", newline="") as csvfile:
-    fieldnames = ["Timestamp", "TEMP00", "TEMP01", "TEMP02", "TEMP03",
-                  "TEMP10", "TEMP11", "TEMP12", "TEMP13"]
+    fieldnames = ["Timestamp", "TEMP00", "VOLT00", "TEMP01", "VOLT01",
+                  "TEMP02", "VOLT02", "TEMP03", "VOLT03", "TEMP10", "VOLT10",
+                  "TEMP11", "VOLT11", "TEMP12", "VOLT12", "TEMP13", "VOLT13"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
 
     try:
         while True:
             try:
-                # Read all 4 channels from both ADS1115 modules and convert to temperature
-                readings = {
-                    "Timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "TEMP00": convert_to_temperature(ads1._read(0)),
-                    "TEMP01": convert_to_temperature(ads1._read(1)),
-                    "TEMP02": convert_to_temperature(ads1._read(2)),
-                    "TEMP03": convert_to_temperature(ads1._read(3)),
-                    "TEMP10": convert_to_temperature(ads2._read(0)),
-                    "TEMP11": convert_to_temperature(ads2._read(1)),
-                    "TEMP12": convert_to_temperature(ads2._read(2)),
-                    "TEMP13": convert_to_temperature(ads2._read(3)),
-                }
+                # Read sensor values and store results in a dictionary
+                readings = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
+
+                # Loop through both ADS instances and their channels
+                for sensor, ads in enumerate([ads1, ads2]):
+                    for channel in range(4):
+                        temperature, voltage = convert_to_temperature(ads._read(channel))
+                        readings[f"TEMP{sensor}{channel}"] = temperature
+                        readings[f"VOLT{sensor}{channel}"] = voltage
 
                 # Write to CSV
                 writer.writerow(readings)
                 csvfile.flush()
 
+
                 # Print to console for monitoring
                 print(readings)
 
                 # Wait 1 second before next reading
-                time.sleep(3)
+                time.sleep(1)
 
             except OSError as e:
                 print(f"OS error occurred: {e}. Reinitializing I2C and ADS modules...")

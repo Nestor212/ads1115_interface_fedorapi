@@ -2,7 +2,7 @@
 
 % Given values
 Rdivider = 56e3; % 56k ohms
-Vin = 5;         % 5V input voltage
+Vin = 5.5;         % 5V input voltage
 
 % Fixed Resistor values
 Rtherm = [467.9, 149.2e3]; % Shared Rtherm values for all sensors
@@ -12,14 +12,14 @@ Vout_ideal = (Rtherm ./ (Rtherm + Rdivider)) * Vin;
 
 % Actual measured values for calibration
 %            [V_470Ohm, V_150kOhm]
-Vout_actual = [0.04499, 3.9933; % Sensor 1
-               0.04508, 3.9953; % Sensor 2
-               0.04455, 3.9851; % Sensor 3
-               0.04488, 3.9942; % Sensor 4
-               0.04512, 3.9987; % Sensor 5
-               0.04457, 3.9880; % Sensor 6
-               0.04485, 3.9941; % Sensor 7
-               0.04507, 4.00]; % Sensor 8
+Vout_actual = [0.044, 3.95; % Sensor 1
+               0.044, 3.94; % Sensor 2
+               0.044, 3.92; % Sensor 3
+               0.045, 3.93; % Sensor 4
+               0.044, 3.95; % Sensor 5
+               0.044, 3.92; % Sensor 6
+               0.044, 3.93; % Sensor 7
+               0.044, 3.93]; % Sensor 8
 
 % Loop through each sensor for calibration
 num_sensors = size(Vout_actual, 1);
